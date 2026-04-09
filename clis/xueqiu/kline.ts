@@ -1,4 +1,5 @@
 import { cli } from '@jackwener/opencli/registry';
+import { EmptyResultError } from '@jackwener/opencli/errors';
 import { fetchXueqiuJson } from './utils.js';
 
 cli({
@@ -24,8 +25,8 @@ cli({
     const beginTs = Date.now();
     const url = `https://stock.xueqiu.com/v5/stock/chart/kline.json?symbol=${encodeURIComponent(symbol)}&begin=${beginTs}&period=day&type=before&count=-${days}`;
     const d = await fetchXueqiuJson(page, url);
-    if ('error' in d) return [d];
-    if (!d.data?.item?.length) return [];
+
+    if (!d.data?.item?.length) throw new EmptyResultError('xueqiu/kline', '请确认股票代码是否正确: ' + symbol);
 
     const columns: string[] = d.data.column || [];
     const colIdx: Record<string, number> = {};
